@@ -1,0 +1,15 @@
+[Unit]
+Description=Launch EnergyCounter and store output files in /energy
+
+[Service]
+User=root
+Type=simple
+ExecStartPre=/bin/mkdir -p /energy
+ExecStartPre=/bin/mount -t tmpfs -o size=32M tmpfs /energy
+ExecStart=/opt/ecounter/ecounter --dir=/energy
+ExecStopPost=/bin/umount /energy
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
