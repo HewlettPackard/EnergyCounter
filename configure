@@ -26,7 +26,7 @@
 #+    ./configure [OPTIONS]                                                    #
 #%                                                                             #
 #% Description:                                                                #
-#%   configure is a cmake wrapper (similar ro autotools).                      #
+#%   configure is a cmake wrapper (similar to autotools).                      #
 #%   For a better control, directly use cmake.                                 #
 #%                                                                             #
 #%   By default, 'make install' will install all the files in '/opt/ecounter'. #
@@ -37,6 +37,7 @@
 #%        --disable-cpu            Disable CPU (AMD or Intel) package support. #
 #%        --disable-dram           Disable DRAM support (Intel CPU only).      #
 #%        --disable-gpu-amd        Disable AMD GPU support.                    #
+#%        --disable-gpu-intel      Disable Intel GPU support.                  #
 #%        --disable-gpu-nvidia     Disable NVIDIA GPU support.                 #
 #%        --enable-debug           Enable debug support.                       #
 #%    -h, --help                   Print this help.                            #
@@ -149,6 +150,9 @@
                     ;;
                 --disable-gpu-amd)
                     PARAM="${PARAM} -DDISABLE_GPU_AMD=TRUE"
+                    ;;
+                --disable-gpu-intel)
+                    PARAM="${PARAM} -DDISABLE_GPU_INTEL=TRUE"
                     ;;
                 --disable-gpu-nvidia)
                     PARAM="${PARAM} -DDISABLE_GPU_NVIDIA=TRUE"

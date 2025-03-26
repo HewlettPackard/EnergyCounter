@@ -6,7 +6,8 @@ standardize (no wraparound) and expose the accumulated value of each counter
 (in joules) in a file. Ressources are automatically detected.
 The following hardware devices are supported:
 
-* **AMD MI GPUs** (starting from MI200 generation)
+* **AMD Instinct GPUs** (starting from MI200 generation)
+* **Intel Max GPUs** (starting from Ponte Vecchio generation)
 * **NVIDIA Tesla GPUs** (starting from Volta generation)
 * **AMD CPUs** (Starting from Ryzen)
 * **Intel CPUs** (Starting from Sandy Bridge?)
@@ -25,8 +26,9 @@ small overhead). There is no software sampling (no power metric is collected).
 Dependencies
 ------------
 
-* **NVIDIA DCGM** (NVIDIA GPUs)
 * **AMD ROCm** (AMD GPUs)
+* **Intel oneAPI Level Zero** (Intel GPUs)
+* **NVIDIA DCGM** (NVIDIA GPUs)
 
 
 How to build EnergyCounter
@@ -51,6 +53,7 @@ Arguments are :
         --disable-cpu          Disable CPU energy support
         --disable-dram         Disable DRAM energy support
         --disable-gpu-amd      Disable AMD GPU energy support
+        --disable-gpu-intel    Disable Intel GPU energy support
         --disable-gpu-nvidia   Disable NVIDIA GPU energy support
     -d, --dir=<path>           Directory path where the files are stored. Should
                                be in a tmpfs or ramfs mount point to avoid
@@ -148,11 +151,11 @@ Results with 5x NVIDIA GPUs (H100)
     Nvidia GPU 4 (0xcd): 907 Joules (raw: 10971127135)
 
 
-Results with 4x AMD GPUs (MI250x)
----------------------------------
+Results with 4x AMD Instinct GPUs (MI250X)
+------------------------------------------
 
-> The MI250(x) accelerator is composed of 2 chips aka Graphics Compute Die (GCD).
-> Each GCD can be compared as a single GPU. By default the first GCD of each MI250(x)
+> The MI250(X) accelerator is composed of 2 chips aka Graphics Compute Die (GCD).
+> Each GCD can be compared as a single GPU. By default the first GCD of each MI250(X)
 > gets the consumption for the whole accelerator. In other words, only half of the
 > GCDs are associated with an energy counter.
 
@@ -247,7 +250,85 @@ Results with 2x AMD EPYC Milan CPUs and 5x NVIDIA GPUs (H100)
     gpu_88_energy  gpu_8c_energy  gpu_c8_energy  gpu_cc_energy  gpu_cd_energy
 
 
+Results with 6x Intel Max GPUs (1550)
+-------------------------------------
+
+> The Max 1550 accelerator is composed of 2 tiles on the same package.
+> Each tile can be compared as a single GPU. By default each tile reports
+> the consumption for the whole accelerator.
+
+EnergyCounter splits the energy consuption in a 50/50 fashion across the tiles.
+Output is the following (GPUs are idle):
+
+    %ecounter --verbose
+    12 Intel GPU devices found
+    Intel Max 1550 found, enabling split (50/50) energy consumption across tiles
+    Intel GPU 0 and 1 share the same board
+    Intel Max 1550 found, enabling split (50/50) energy consumption across tiles
+    Intel Max 1550 found, enabling split (50/50) energy consumption across tiles
+    Intel GPU 2 and 3 share the same board
+    Intel Max 1550 found, enabling split (50/50) energy consumption across tiles
+    Intel Max 1550 found, enabling split (50/50) energy consumption across tiles
+    Intel GPU 4 and 5 share the same board
+    Intel Max 1550 found, enabling split (50/50) energy consumption across tiles
+    Intel Max 1550 found, enabling split (50/50) energy consumption across tiles
+    Intel GPU 6 and 7 share the same board
+    Intel Max 1550 found, enabling split (50/50) energy consumption across tiles
+    Intel Max 1550 found, enabling split (50/50) energy consumption across tiles
+    Intel GPU 8 and 9 share the same board
+    Intel Max 1550 found, enabling split (50/50) energy consumption across tiles
+    Intel Max 1550 found, enabling split (50/50) energy consumption across tiles
+    Intel GPU 10 and 11 share the same board
+    Intel Max 1550 found, enabling split (50/50) energy consumption across tiles
+    Starting ecounter -- Directory path: /tmp/ecounter -- Interval: 10
+    Intel GPU 0 (0x18): 0 J (accumulator: 0 J, raw: 969259265502)
+    Intel GPU 1 (0x18): 0 J (accumulator: 0 J, raw: 969259265502)
+    Intel GPU 2 (0x42): 0 J (accumulator: 0 J, raw: 1099592646545)
+    Intel GPU 3 (0x42): 0 J (accumulator: 0 J, raw: 1099592646545)
+    Intel GPU 4 (0x6c): 0 J (accumulator: 0 J, raw: 1125002989624)
+    Intel GPU 5 (0x6c): 0 J (accumulator: 0 J, raw: 1125002989624)
+    Intel GPU 6 (0x18): 0 J (accumulator: 0 J, raw: 1186158357666)
+    Intel GPU 7 (0x18): 0 J (accumulator: 0 J, raw: 1186158357666)
+    Intel GPU 8 (0x42): 0 J (accumulator: 0 J, raw: 1148474365905)
+    Intel GPU 9 (0x42): 0 J (accumulator: 0 J, raw: 1148474365905)
+    Intel GPU 10 (0x6c): 0 J (accumulator: 0 J, raw: 1004817547973)
+    Intel GPU 11 (0x6c): 0 J (accumulator: 0 J, raw: 1004817547973)
+    ------------------------------ [Next data collection in 10s]
+    Intel GPU 0 (0x18): 1110 J (accumulator: 1110 J, raw: 971481203125)
+    Intel GPU 1 (0x18): 1110 J (accumulator: 1110 J, raw: 971481203125)
+    Intel GPU 2 (0x42): 1092 J (accumulator: 1092 J, raw: 1101778004150)
+    Intel GPU 3 (0x42): 1092 J (accumulator: 1092 J, raw: 1101778004150)
+    Intel GPU 4 (0x6c): 1107 J (accumulator: 1107 J, raw: 1127217792053)
+    Intel GPU 5 (0x6c): 1107 J (accumulator: 1107 J, raw: 1127217792053)
+    Intel GPU 6 (0x18): 1150 J (accumulator: 1150 J, raw: 1188458907165)
+    Intel GPU 7 (0x18): 1150 J (accumulator: 1150 J, raw: 1188458907165)
+    Intel GPU 8 (0x42): 1152 J (accumulator: 1152 J, raw: 1150779471069)
+    Intel GPU 9 (0x42): 1152 J (accumulator: 1152 J, raw: 1150779471069)
+    Intel GPU 10 (0x6c): 1119 J (accumulator: 1119 J, raw: 1007055587219)
+    Intel GPU 11 (0x6c): 1119 J (accumulator: 1119 J, raw: 1007055587219)
+    ------------------------------ [Next data collection in 10s]
+    Intel GPU 0 (0x18): 1046 J (accumulator: 2156 J, raw: 973575121582)
+    Intel GPU 1 (0x18): 1046 J (accumulator: 2156 J, raw: 973575121582)
+    Intel GPU 2 (0x42): 1031 J (accumulator: 2123 J, raw: 1103841433105)
+    Intel GPU 3 (0x42): 1031 J (accumulator: 2123 J, raw: 1103841433105)
+    Intel GPU 4 (0x6c): 1042 J (accumulator: 2149 J, raw: 1129302330993)
+    Intel GPU 5 (0x6c): 1042 J (accumulator: 2149 J, raw: 1129302330993)
+    Intel GPU 6 (0x18): 1089 J (accumulator: 2239 J, raw: 1190636917968)
+    Intel GPU 7 (0x18): 1089 J (accumulator: 2239 J, raw: 1190636917968)
+    Intel GPU 8 (0x42): 1089 J (accumulator: 2241 J, raw: 1152958808532)
+    Intel GPU 9 (0x42): 1089 J (accumulator: 2241 J, raw: 1152958808532)
+    Intel GPU 10 (0x6c): 1052 J (accumulator: 2171 J, raw: 1009161289978)
+    Intel GPU 11 (0x6c): 1052 J (accumulator: 2171 J, raw: 1009161289978)
+
+
+    %ls /tmp/ecounter/
+    gpu_18_0_energy  gpu_18_6_energy   gpu_42_2_energy
+    gpu_42_8_energy  gpu_6c_10_energy  gpu_6c_4_energy
+    gpu_18_1_energy  gpu_18_7_energy   gpu_42_3_energy
+    gpu_42_9_energy  gpu_6c_11_energy  gpu_6c_5_energy
+
+
 Future Work
 -----------
 
-- [ ] Support (if possible) Intel's Ponte Vecchio GPUs
+- [ ] Add better energy split model on Intel's Ponte Vecchio GPUs with 2 tiles (Max 1550)
