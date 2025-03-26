@@ -37,8 +37,9 @@
 
 enum interface {
     AMD_GPUS,
-    CPUS,
+    INTEL_GPUS,
     NVIDIA_GPUS,
+    CPUS,
     DRAMS,
     MOCKS,
     INTERFACES_MAX

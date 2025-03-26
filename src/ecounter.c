@@ -52,11 +52,13 @@
 #define ARG_CPU        0x200
 #define ARG_DRAM       0x300
 #define ARG_GPU_AMD    0x400
-#define ARG_GPU_NVIDIA 0x500
+#define ARG_GPU_INTEL  0x500
+#define ARG_GPU_NVIDIA 0x600
 
 extern void cpu_init(Component_t *, const char * dir_path, const bool is_verbose, const bool is_disabled);
 extern void dram_init(Component_t *, const char * dir_path, const bool is_verbose, const bool is_disabled);
 extern void amd_gpu_init(Component_t *, const char *dir_path, const bool is_verbose, const bool is_disabled);
+extern void intel_gpu_init(Component_t *, const char *dir_path, const bool is_verbose, const bool is_disabled);
 extern void nvidia_gpu_init(Component_t *, const char *dir_path, const bool is_verbose, const bool is_disabled);
 extern void mock_init(Component_t *, const char *dir_path, const bool is_verbose,
                       const uint32_t n_mocks, uint32_t *mock_watts, const uint32_t interval);
@@ -112,6 +114,9 @@ static struct argp_option options[] =
 #ifdef AMD_GPU
     {"disable-gpu-amd", ARG_GPU_AMD,       0, 0, "Disable AMD GPU energy support"},
 #endif /* AMD_GPU */
+#ifdef INTEL_GPU
+    {"disable-gpu-intel", ARG_GPU_INTEL,   0, 0, "Disable Intel GPU support"},
+#endif /* INTEL_GPU */
 #ifdef NVIDIA_GPU
     {"disable-gpu-nvidia", ARG_GPU_NVIDIA, 0, 0, "Disable NVIDIA GPU support"},
 #endif /* NVIDA_GPU */
@@ -143,6 +148,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
             break;
         case ARG_GPU_AMD:
             ec->is_disabled[AMD_GPUS] = true;
+            break;
+        case ARG_GPU_INTEL:
+            ec->is_disabled[INTEL_GPUS] = true;
             break;
         case ARG_GPU_NVIDIA:
             ec->is_disabled[NVIDIA_GPUS] = true;
@@ -298,6 +306,7 @@ void init(int argc, char *argv[], Ecounter_t *ec)
     ec->overhead.min = INT_MAX;
 
     amd_gpu_init(&ec->components[AMD_GPUS], ec->dir_path, ec->is_verbose, ec->is_disabled[AMD_GPUS]);
+    intel_gpu_init(&ec->components[INTEL_GPUS], ec->dir_path, ec->is_verbose, ec->is_disabled[INTEL_GPUS]);
     nvidia_gpu_init(&ec->components[NVIDIA_GPUS], ec->dir_path, ec->is_verbose, ec->is_disabled[NVIDIA_GPUS]);
     cpu_init(&ec->components[CPUS], ec->dir_path, ec->is_verbose, ec->is_disabled[CPUS]);
     dram_init(&ec->components[DRAMS], ec->dir_path, ec->is_verbose, ec->is_disabled[DRAMS]);
@@ -354,4 +363,3 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
