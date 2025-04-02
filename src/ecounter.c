@@ -33,6 +33,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <signal.h>
 #include "interface.h"
 
@@ -292,9 +293,18 @@ void init(int argc, char *argv[], Ecounter_t *ec)
 
     argp_parse(&argp, argc, argv, 0, 0, ec);
 
-    /* Check the destination directory exists and can be accessed */
+    /* Try to create the destination directory */
+    int ret = mkdir(ec->dir_path, 0755);
+    if ((ret != 0) && (errno != EEXIST))
+    {
+        fprintf(stderr, "Error: unable to create %s directory (%s). Exit\n",
+                ec->dir_path, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+
+    /* Check the destination directory can be accessed */
     DIR *dir = opendir(ec->dir_path);
-    if (!dir)
+    if (dir == NULL)
     {
         fprintf(stderr, "Error: unable to open %s directory (%s). Exit\n",
                 ec->dir_path, strerror(errno));
